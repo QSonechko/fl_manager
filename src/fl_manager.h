@@ -19,16 +19,17 @@
 #define K_BACK 127
 
 struct file_manager {
-	char *current_path;
-	DIR *current_dir_stream;
+	char *path;
+	DIR *dir_stream;
 	int ent_count;
 	int selected_ent;
 	int with_hidden;
-	struct dirent *dir_entries[1024];
+	char *dir_entries[1024];
 };
 
 struct file_manager *init_manger(const char *path, int hidden);
-DIR *o_dir(struct file_manager *mngr);
+inline void free_manager(struct file_manager *mngr);
+int o_dir(struct file_manager *mngr);
 int read_dir(struct file_manager *mngr);
 void sort(struct file_manager mngr*);
 void print_dir(struct file_manager *mngr);
