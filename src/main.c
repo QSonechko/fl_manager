@@ -2,8 +2,9 @@
 
 int main(void)
 {
-	struct fl_manager *mngr = init_manager("/home/pasha/", FALSE);
+	struct file_manager *mngr = init_manager("/home/pasha/", FALSE);
 	int res = mngr_loop(mngr);
+	free_manager(mngr);
 
 	return res;
 }

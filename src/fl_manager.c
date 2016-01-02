@@ -6,10 +6,15 @@ struct file_manager *init_manager(const char *path, int hidden)
 	mngr->path = malloc(sizeof(path) + 1);
 	strcpy(mngr->path, path);
 	mngr->with_hidden = hidden;
+
+	return mngr;
 }
 
 int o_dir(struct file_manager *mngr)
 {
+	if (mngr->dir_stream != NULL)
+		closedir(mngr->dir_stream);
+
 	mngr->dir_stream = opendir(mngr->path);
 	if (mngr->dir_stream == NULL) {
 		perror("open");
@@ -31,7 +36,8 @@ int read_dir(struct file_manager *mngr)
 		if (mngr->dir_entries[ec] == NULL)
 			mngr->dir_entries[ec] = malloc(sizeof(readres->d_name) + 1);
 		else
-			realloc(mngr->dir_entries[ec], sizeof(readres->d_name) + 1);
+			mngr->dir_entries[ec] = (char*)realloc(mngr->dir_entries[ec], 
+												   sizeof(readres->d_name) + 1);
 		strcpy(mngr->dir_entries[ec++], readres->d_name);
 	}
 
@@ -48,7 +54,7 @@ int read_dir(struct file_manager *mngr)
 void sort(struct file_manager *mngr)
 {
 	int i, j;
-	char tmp[];
+	char tmp[100];
 	for (i = 1; i < mngr->ent_count - 1; i++) {
 		for (j = 1; j < mngr->ent_count - 1; j++) {
 			if (mngr->dir_entries[j][0] > mngr->dir_entries[j + 1][0]) {
@@ -79,7 +85,6 @@ int mngr_loop(struct file_manager *mngr)
 {
 	int c;
 	int se;
-	int err = 0;
 
 	initscr();
 	noecho();
@@ -89,6 +94,7 @@ int mngr_loop(struct file_manager *mngr)
 		return -1;
 	if (read_dir(mngr) == -1)
 		return -2;
+	print_dir(mngr);
 
 	while ((c = getch()) != (int)'q') {
 		switch(c) {
@@ -102,9 +108,11 @@ int mngr_loop(struct file_manager *mngr)
 			break;
 		case K_RETURN:
 			se = mngr->selected_ent;
-			realloc(mngr->dir_entries[0], sizeof(mngr->path + 1));
+			mngr->dir_entries[0] = (char*)realloc(mngr->dir_entries[0], 
+												  sizeof(mngr->path + 1));
 			strcpy(mngr->dir_entries[0], mngr->path);
-			realloc(mngr->path, sizeof(mngr->dir_entries[se] + 1));
+			mngr->path = (char*)realloc(mngr->path, 
+								 sizeof(mngr->dir_entries[se] + 1));
 			strcpy(mngr->path, mngr->dir_entries[se]);
 			if (o_dir(mngr) == -1)
 				return -1;
@@ -119,7 +127,7 @@ int mngr_loop(struct file_manager *mngr)
 		print_dir(mngr);
 	}
 
-	endwind();
+	endwin();
 
 	return 0;
 }
@@ -131,7 +139,7 @@ void free_manager(struct file_manager *mngr)
 		while (mngr->dir_entries[i] != NULL)
 			free(mngr->dir_entries[i++]);
 		free(mngr->path);
-		dirclose(mngr->dir_stream);
+		closedir(mngr->dir_stream);
 		free(mngr);
 	}
 }

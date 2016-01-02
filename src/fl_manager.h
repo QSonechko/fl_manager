@@ -1,6 +1,7 @@
 #ifndef FL_MANAGER_H
 #define FL_MANAGER_H
 
+#include <stdlib.h>
 #include <sys/stat.h>
 #include <unistd.h>
 #include <dirent.h>
@@ -27,11 +28,11 @@ struct file_manager {
 	char *dir_entries[1024];
 };
 
-struct file_manager *init_manger(const char *path, int hidden);
-inline void free_manager(struct file_manager *mngr);
+struct file_manager *init_manager(const char *path, int hidden);
+void free_manager(struct file_manager *mngr);
 int o_dir(struct file_manager *mngr);
 int read_dir(struct file_manager *mngr);
-void sort(struct file_manager mngr*);
+void sort(struct file_manager *mngr);
 void print_dir(struct file_manager *mngr);
 int mngr_loop(struct file_manager *mngr);
 
