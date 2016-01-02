@@ -86,10 +86,6 @@ int mngr_loop(struct file_manager *mngr)
 	int c;
 	int se;
 
-	initscr();
-	noecho();
-	raw();
-
 	if (o_dir(mngr) == -1)
 		return -1;
 	if (read_dir(mngr) == -1)
@@ -113,7 +109,8 @@ int mngr_loop(struct file_manager *mngr)
 			strcpy(mngr->dir_entries[0], mngr->path);
 			mngr->path = (char*)realloc(mngr->path, 
 								 sizeof(mngr->dir_entries[se] + 1));
-			strcpy(mngr->path, mngr->dir_entries[se]);
+			strcat(mngr->path, mngr->dir_entries[se]);
+			strcat(mngr->path, "/");
 			if (o_dir(mngr) == -1)
 				return -1;
 
@@ -126,8 +123,6 @@ int mngr_loop(struct file_manager *mngr)
 		}
 		print_dir(mngr);
 	}
-
-	endwin();
 
 	return 0;
 }
