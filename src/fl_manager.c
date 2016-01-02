@@ -1,5 +1,4 @@
 #include "fl_manager.h"
-// TODO: write loop function and try compiling this shit already ffs
 
 struct file_manager *init_manager(const char *path, int hidden)
 {
@@ -74,6 +73,55 @@ void print_dir(struct file_manager *mngr)
 	printw("Currently in %s", mngr->path);
 	printw("Entries in directory: %d\n", mngr->ent_count);
 	refresh();
+}
+
+int mngr_loop(struct file_manager *mngr)
+{
+	int c;
+	int se;
+	int err = 0;
+
+	initscr();
+	noecho();
+	raw();
+
+	if (o_dir(mngr) == -1)
+		return -1;
+	if (read_dir(mngr) == -1)
+		return -2;
+
+	while ((c = getch()) != (int)'q') {
+		switch(c) {
+		case K_UP:
+			if (mngr->selected_ent > 0)
+				mngr->selected_ent--;
+			break;
+		case K_DOWN:
+			if (mngr->selected_ent < mngr->ent_count)
+				mngr->selected_ent++;
+			break;
+		case K_RETURN:
+			se = mngr->selected_ent;
+			realloc(mngr->dir_entries[0], sizeof(mngr->path + 1));
+			strcpy(mngr->dir_entries[0], mngr->path);
+			realloc(mngr->path, sizeof(mngr->dir_entries[se] + 1));
+			strcpy(mngr->path, mngr->dir_entries[se]);
+			if (o_dir(mngr) == -1)
+				return -1;
+
+			if (read_dir(mngr) == -1)
+				return -2;
+			break;
+		case K_BACK:
+	
+			break;
+		}
+		print_dir(mngr);
+	}
+
+	endwind();
+
+	return 0;
 }
 
 void free_manager(struct file_manager *mngr)
