@@ -6,6 +6,8 @@ struct file_manager *init_manager(const char *path, int hidden)
 	mngr->path = malloc(sizeof(path) + 1);
 	strcpy(mngr->path, path);
 	mngr->with_hidden = hidden;
+	mngr->dir_entries[0] = malloc(sizeof(mngr->path) + 1);
+	strcpy(mngr->dir_entries[0], mngr->path);
 
 	return mngr;
 }
@@ -76,7 +78,7 @@ void print_dir(struct file_manager *mngr)
 		printw("\t%s\n", mngr->dir_entries[i]);
 	}
 	printw("-------------------------\n");
-	printw("Currently in %s", mngr->path);
+	printw("Currently in %s\n", mngr->path);
 	printw("Entries in directory: %d\n", mngr->ent_count);
 	refresh();
 }
@@ -104,13 +106,17 @@ int mngr_loop(struct file_manager *mngr)
 			break;
 		case K_RETURN:
 			se = mngr->selected_ent;
-			mngr->dir_entries[0] = (char*)realloc(mngr->dir_entries[0], 
+			if (se != 0) {
+				mngr->dir_entries[0] = (char*)realloc(mngr->dir_entries[0], 
 												  sizeof(mngr->path + 1));
-			strcpy(mngr->dir_entries[0], mngr->path);
+				strcpy(mngr->dir_entries[0], mngr->path);
+			}
 			mngr->path = (char*)realloc(mngr->path, 
-								 sizeof(mngr->dir_entries[se] + 1));
+								 sizeof(mngr->dir_entries[se]) + 
+								 sizeof(mngr->path) + 2);
 			strcat(mngr->path, mngr->dir_entries[se]);
 			strcat(mngr->path, "/");
+
 			if (o_dir(mngr) == -1)
 				return -1;
 
