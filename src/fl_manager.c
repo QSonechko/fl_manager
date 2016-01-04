@@ -1,5 +1,12 @@
 #include "fl_manager.h"
 
+/*
+ *TODO: So first of all remember to use a temporary pointer
+ * for realloc. So you will have to add some more shit code.
+ *NOTE: There seem to be some memory leaks; should probably take a
+ * look at it.
+ */
+
 struct file_manager *init_manager(const char *path, int hidden)
 {
 	struct file_manager *mngr = malloc(sizeof(struct file_manager));
@@ -30,16 +37,24 @@ int read_dir(struct file_manager *mngr)
 {
 	int err = errno;
 	int ec = 1;
+	char *tmp;
 	struct dirent *readres;
 
 	while ((readres = readdir(mngr->dir_stream)) != NULL ) {
 		if (!mngr->with_hidden && readres->d_name[0] == '.')
 			continue;
-		if (mngr->dir_entries[ec] == NULL)
+		if (mngr->dir_entries[ec] == NULL) {
 			mngr->dir_entries[ec] = malloc(sizeof(readres->d_name) + 1);
-		else
-			mngr->dir_entries[ec] = (char*)realloc(mngr->dir_entries[ec], 
-												   sizeof(readres->d_name) + 1);
+		} else {
+			tmp = (char*)realloc(mngr->dir_entries[ec], 
+								sizeof(readres->d_name) + 1);
+			if (tmp == NULL) {
+				perror("realloc");
+				return -1;
+			} else {
+				mngr->dir_entries[ec] = tmp;
+			}
+		}
 		strcpy(mngr->dir_entries[ec++], readres->d_name);
 	}
 
@@ -87,6 +102,8 @@ int mngr_loop(struct file_manager *mngr)
 {
 	int c;
 	int se;
+	char *tmp;
+	int len;
 
 	if (o_dir(mngr) == -1)
 		return -1;
@@ -107,13 +124,29 @@ int mngr_loop(struct file_manager *mngr)
 		case K_RETURN:
 			se = mngr->selected_ent;
 			if (se != 0) {
-				mngr->dir_entries[0] = (char*)realloc(mngr->dir_entries[0], 
-												  sizeof(mngr->path + 1));
+				len = strlen(mngr->path);
+				tmp = (char *)realloc(mngr->dir_entries[0], 
+									len * sizeof(char) + 1);
+				if (tmp == NULL) {
+					perror("realloc");
+					return -1;
+				} else {
+					mngr->dir_entries[0] = tmp;
+				}
 				strcpy(mngr->dir_entries[0], mngr->path);
 			}
-			mngr->path = (char*)realloc(mngr->path, 
-								 sizeof(mngr->dir_entries[se]) + 
-								 sizeof(mngr->path) + 2);
+			/*mngr->path*/
+			len = strlen(mngr->dir_entries[se]);
+			len += strlen(mngr->path);
+			tmp = (char *)realloc(mngr->path, 
+								 len * sizeof(char) + 1);
+			if (tmp == NULL) {
+				perror("realloc");
+				return -1;
+			} else {
+				mngr->path = tmp;
+			}
+
 			strcat(mngr->path, mngr->dir_entries[se]);
 			strcat(mngr->path, "/");
 
