@@ -1,12 +1,5 @@
 #include "fl_manager.h"
 
-/*
- *TODO: So first of all remember to use a temporary pointer
- * for realloc. So you will have to add some more shit code.
- *NOTE: There seem to be some memory leaks; should probably take a
- * look at it.
- */
-
 struct file_manager *init_manager(const char *path, int hidden)
 {
 	struct file_manager *mngr = malloc(sizeof(struct file_manager));
