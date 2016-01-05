@@ -2,7 +2,7 @@
 
 int main(void)
 {
-	struct file_manager *mngr = init_manager("/home/pasha/", FALSE);
+	struct file_manager *mngr = init_manager("/home/pasha/", TRUE);
 	int res;
 
 	initscr();

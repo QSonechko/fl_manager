@@ -6,8 +6,6 @@ struct file_manager *init_manager(const char *path, int hidden)
 	mngr->path = malloc(sizeof(path) + 1);
 	strcpy(mngr->path, path);
 	mngr->with_hidden = hidden;
-	mngr->dir_entries[0] = malloc(sizeof(mngr->path) + 1);
-	strcpy(mngr->dir_entries[0], mngr->path);
 
 	return mngr;
 }
@@ -29,7 +27,7 @@ int o_dir(struct file_manager *mngr)
 int read_dir(struct file_manager *mngr)
 {
 	int err = errno;
-	int ec = 1;
+	int ec = 0;
 	char *tmp;
 	struct dirent *readres;
 
@@ -39,7 +37,7 @@ int read_dir(struct file_manager *mngr)
 		if (mngr->dir_entries[ec] == NULL) {
 			mngr->dir_entries[ec] = malloc(sizeof(readres->d_name) + 1);
 		} else {
-			tmp = (char*)realloc(mngr->dir_entries[ec], 
+			tmp = (char *)realloc(mngr->dir_entries[ec], 
 								sizeof(readres->d_name) + 1);
 			if (tmp == NULL) {
 				perror("realloc");
@@ -65,8 +63,8 @@ void sort(struct file_manager *mngr)
 {
 	int i, j;
 	char tmp[100];
-	for (i = 1; i < mngr->ent_count - 1; i++) {
-		for (j = 1; j < mngr->ent_count - 1; j++) {
+	for (i = 0; i < mngr->ent_count - 1; i++) {
+		for (j = 0; j < mngr->ent_count - 1; j++) {
 			if (mngr->dir_entries[j][0] > mngr->dir_entries[j + 1][0]) {
 				strcpy(tmp, mngr->dir_entries[j]);
 				strcpy(mngr->dir_entries[j], mngr->dir_entries[j + 1]);
@@ -116,18 +114,7 @@ int mngr_loop(struct file_manager *mngr)
 			break;
 		case K_RETURN:
 			se = mngr->selected_ent;
-			if (se != 0) {
-				len = strlen(mngr->path);
-				tmp = (char *)realloc(mngr->dir_entries[0], 
-									len * sizeof(char) + 1);
-				if (tmp == NULL) {
-					perror("realloc");
-					return -1;
-				} else {
-					mngr->dir_entries[0] = tmp;
-				}
-				strcpy(mngr->dir_entries[0], mngr->path);
-			}
+
 			/*mngr->path*/
 			len = strlen(mngr->dir_entries[se]);
 			len += strlen(mngr->path);
@@ -153,6 +140,7 @@ int mngr_loop(struct file_manager *mngr)
 	
 			break;
 		}
+		sort(mngr);
 		print_dir(mngr);
 	}
 
