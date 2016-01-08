@@ -37,7 +37,7 @@ int read_dir(struct file_manager *mngr)
 		if (mngr->dir_entries[ec] == NULL) {
 			mngr->dir_entries[ec] = malloc(sizeof(readres->d_name) + 1);
 		} else {
-			tmp = (char *)realloc(mngr->dir_entries[ec], 
+			tmp = (char *)realloc(mngr->dir_entries[ec],
 								sizeof(readres->d_name) + 1);
 			if (tmp == NULL) {
 				perror("realloc");
@@ -62,13 +62,13 @@ int read_dir(struct file_manager *mngr)
 void sort(struct file_manager *mngr)
 {
 	int i, j;
-	char tmp[100];
+	char *tmp;
 	for (i = 0; i < mngr->ent_count - 1; i++) {
 		for (j = 0; j < mngr->ent_count - 1; j++) {
 			if (mngr->dir_entries[j][0] > mngr->dir_entries[j + 1][0]) {
-				strcpy(tmp, mngr->dir_entries[j]);
-				strcpy(mngr->dir_entries[j], mngr->dir_entries[j + 1]);
-				strcpy(mngr->dir_entries[j + 1], tmp);
+				tmp = mngr->dir_entries[j];
+				mngr->dir_entries[j] = mngr->dir_entries[j + 1];
+				mngr->dir_entries[j + 1] = tmp;
 			}
 		}
 	}
@@ -78,10 +78,14 @@ void print_dir(struct file_manager *mngr)
 {
 	int i;
 	clear();
+
+	init_pair(1, COLOR_BLACK, COLOR_BLUE);
+
 	for (i = 0; i < mngr->ent_count; i++) {
 		if (i == mngr->selected_ent)
-			printw("*");
+			attron(COLOR_PAIR(1));
 		printw("\t%s\n", mngr->dir_entries[i]);
+		attroff(COLOR_PAIR(1));
 	}
 	printw("-------------------------\n");
 	printw("Currently in %s\n", mngr->path);
@@ -118,8 +122,7 @@ int mngr_loop(struct file_manager *mngr)
 			/*mngr->path*/
 			len = strlen(mngr->dir_entries[se]);
 			len += strlen(mngr->path);
-			tmp = (char *)realloc(mngr->path, 
-								 len * sizeof(char) + 1);
+			tmp = (char *)realloc(mngr->path, len * sizeof(char) + 1);
 			if (tmp == NULL) {
 				perror("realloc");
 				return -1;
@@ -137,7 +140,6 @@ int mngr_loop(struct file_manager *mngr)
 				return -2;
 			break;
 		case K_BACK:
-	
 			break;
 		}
 		sort(mngr);

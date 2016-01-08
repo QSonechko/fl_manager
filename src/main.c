@@ -2,12 +2,14 @@
 
 int main(void)
 {
-	struct file_manager *mngr = init_manager("/home/pasha/", TRUE);
+	struct file_manager *mngr = init_manager("/", TRUE);
 	int res;
 
 	initscr();
 	noecho();
 	raw();
+
+	start_color();
 
 	res = mngr_loop(mngr);
 	
