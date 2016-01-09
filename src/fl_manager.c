@@ -76,16 +76,20 @@ void sort(struct file_manager *mngr)
 
 void print_dir(struct file_manager *mngr)
 {
-	int i;
+	int i, j;
+	int cols = cols_to_print(mngr->ent_count);
 	clear();
 
 	init_pair(1, COLOR_BLACK, COLOR_BLUE);
 
-	for (i = 0; i < mngr->ent_count; i++) {
-		if (i == mngr->selected_ent)
-			attron(COLOR_PAIR(1));
-		printw("\t%s\n", mngr->dir_entries[i]);
-		attroff(COLOR_PAIR(1));
+	for (i = 0; i < mngr->ent_count; i += cols) {
+		for (j = 0; j < cols; j++) {
+			if (i + j == mngr->selected_ent)
+				attron(COLOR_PAIR(1));
+			printw("%s\t", mngr->dir_entries[i + j]);
+			attroff(COLOR_PAIR(1));
+		}
+		printw("\n");
 	}
 	printw("-------------------------\n");
 	printw("Currently in %s\n", mngr->path);
@@ -104,6 +108,7 @@ int mngr_loop(struct file_manager *mngr)
 		return -1;
 	if (read_dir(mngr) == -1)
 		return -2;
+	sort(mngr);
 	print_dir(mngr);
 
 	while ((c = getch()) != (int)'q') {
@@ -159,4 +164,21 @@ void free_manager(struct file_manager *mngr)
 		closedir(mngr->dir_stream);
 		free(mngr);
 	}
+}
+
+int cols_to_print(int ents)
+{
+	int ret;
+	if (ents % 4 == 0) {
+		if (ents >= 10)
+			ret = 4;
+		else
+			ret = 2;
+	} else if (ents % 3 == 0) {
+		ret = 3;
+	} else {
+		ret = 2;
+	}
+	//ret = 0;
+	return ret;
 }
