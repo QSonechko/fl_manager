@@ -19,6 +19,8 @@
 #define K_RETURN 10
 #define K_BACK 127
 
+#define ISDIGIT(c) (((unsigned)c - '0') < 10)
+
 struct file_manager {
 	char *path;
 	DIR *dir_stream;

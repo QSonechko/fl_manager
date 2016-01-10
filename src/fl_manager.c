@@ -146,6 +146,10 @@ int mngr_loop(struct file_manager *mngr)
 			break;
 		case K_BACK:
 			break;
+		default:
+			if (ISDIGIT(c))
+				mngr->selected_ent = c - '0';
+			break;
 		}
 		sort(mngr);
 		print_dir(mngr);
