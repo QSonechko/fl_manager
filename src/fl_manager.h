@@ -38,5 +38,6 @@ void sort(struct file_manager *mngr);
 void print_dir(struct file_manager *mngr);
 int mngr_loop(struct file_manager *mngr);
 int cols_to_print(int ents);
+int get_parent(struct file_manager *mngr);
 
 #endif

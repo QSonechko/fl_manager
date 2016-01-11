@@ -121,6 +121,8 @@ int mngr_loop(struct file_manager *mngr)
 			if (mngr->selected_ent < mngr->ent_count)
 				mngr->selected_ent++;
 			break;
+		case K_BACK:
+			mngr->selected_ent = get_parent(mngr);
 		case K_RETURN:
 			se = mngr->selected_ent;
 
@@ -144,8 +146,7 @@ int mngr_loop(struct file_manager *mngr)
 			if (read_dir(mngr) == -1)
 				return -2;
 			break;
-		case K_BACK:
-			break;
+
 		default:
 			if (ISDIGIT(c))
 				mngr->selected_ent = c - '0';
@@ -185,4 +186,17 @@ int cols_to_print(int ents)
 	}
 	//ret = 0;
 	return ret;
+}
+
+int get_parent(struct file_manager *mngr)
+{
+	int se;
+
+	for (se = 0; se < mngr->ent_count; se++) {
+		if (mngr->dir_entries[se][0] == '.' &&
+			mngr->dir_entries[se][1] == '.')
+			break;
+	}
+
+	return se;
 }
