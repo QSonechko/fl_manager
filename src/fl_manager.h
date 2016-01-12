@@ -20,6 +20,7 @@
 #define K_BACK 127
 
 #define ISDIGIT(c) (((unsigned)c - '0') < 10)
+#define SWAP(tmp, x, y) (tmp = x, x = y, y = tmp)
 
 struct file_manager {
 	char *path;
@@ -38,6 +39,5 @@ void sort(struct file_manager *mngr);
 void print_dir(struct file_manager *mngr);
 int mngr_loop(struct file_manager *mngr);
 int cols_to_print(int ents);
-int get_parent(struct file_manager *mngr);
 
 #endif

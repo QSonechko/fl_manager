@@ -66,10 +66,16 @@ void sort(struct file_manager *mngr)
 	for (i = 0; i < mngr->ent_count - 1; i++) {
 		for (j = 0; j < mngr->ent_count - 1; j++) {
 			if (mngr->dir_entries[j][0] > mngr->dir_entries[j + 1][0]) {
-				tmp = mngr->dir_entries[j];
-				mngr->dir_entries[j] = mngr->dir_entries[j + 1];
-				mngr->dir_entries[j + 1] = tmp;
+				SWAP(tmp, mngr->dir_entries[j], mngr->dir_entries[j + 1]);
 			}
+			if (mngr->dir_entries[j][0] == '.' &&
+					mngr->dir_entries[j][1] == '\0' &&
+					j != 0)
+				SWAP(tmp, mngr->dir_entries[j], mngr->dir_entries[0]);
+			if (mngr->dir_entries[j][0] == '.' &&
+					mngr->dir_entries[j][1] == '.' &&
+					j != 1)
+				SWAP(tmp, mngr->dir_entries[j], mngr->dir_entries[1]);
 		}
 	}
 }
@@ -122,7 +128,7 @@ int mngr_loop(struct file_manager *mngr)
 				mngr->selected_ent++;
 			break;
 		case K_BACK:
-			mngr->selected_ent = get_parent(mngr);
+			mngr->selected_ent = 1;
 		case K_RETURN:
 			se = mngr->selected_ent;
 
@@ -146,7 +152,6 @@ int mngr_loop(struct file_manager *mngr)
 			if (read_dir(mngr) == -1)
 				return -2;
 			break;
-
 		default:
 			if (ISDIGIT(c))
 				mngr->selected_ent = c - '0';
@@ -186,17 +191,4 @@ int cols_to_print(int ents)
 	}
 	//ret = 0;
 	return ret;
-}
-
-int get_parent(struct file_manager *mngr)
-{
-	int se;
-
-	for (se = 0; se < mngr->ent_count; se++) {
-		if (mngr->dir_entries[se][0] == '.' &&
-			mngr->dir_entries[se][1] == '.')
-			break;
-	}
-
-	return se;
 }
