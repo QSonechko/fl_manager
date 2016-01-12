@@ -65,16 +65,15 @@ void sort(struct file_manager *mngr)
 	char *tmp;
 	for (i = 0; i < mngr->ent_count - 1; i++) {
 		for (j = 0; j < mngr->ent_count - 1; j++) {
-			if (mngr->dir_entries[j][0] > mngr->dir_entries[j + 1][0]) {
+			if (mngr->dir_entries[j][0] > mngr->dir_entries[j + 1][0])
 				SWAP(tmp, mngr->dir_entries[j], mngr->dir_entries[j + 1]);
-			}
+
 			if (mngr->dir_entries[j][0] == '.' &&
-					mngr->dir_entries[j][1] == '\0' &&
-					j != 0)
+					mngr->dir_entries[j][1] == '\0' && j != 0)
 				SWAP(tmp, mngr->dir_entries[j], mngr->dir_entries[0]);
+
 			if (mngr->dir_entries[j][0] == '.' &&
-					mngr->dir_entries[j][1] == '.' &&
-					j != 1)
+					mngr->dir_entries[j][1] == '.' && j != 1)
 				SWAP(tmp, mngr->dir_entries[j], mngr->dir_entries[1]);
 		}
 	}
@@ -154,7 +153,9 @@ int mngr_loop(struct file_manager *mngr)
 			break;
 		default:
 			if (ISDIGIT(c))
-				mngr->selected_ent = c - '0';
+				mngr->selected_ent += c - '0';
+			if (mngr->selected_ent > mngr->ent_count)
+				mngr->selected_ent = mngr->ent_count - 1;
 			break;
 		}
 		sort(mngr);
