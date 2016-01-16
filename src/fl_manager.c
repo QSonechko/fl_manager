@@ -151,6 +151,11 @@ int mngr_loop(struct file_manager *mngr)
 			if (read_dir(mngr) == -1)
 				return -2;
 			break;
+		case (int)'-':
+			c = getch();
+			if (!ISDIGIT(c))
+				break;
+			mngr->selected_ent -= 2 * (c - '0');
 		default:
 			if (ISDIGIT(c))
 				mngr->selected_ent += c - '0';
@@ -207,10 +212,18 @@ file_type get_type(char *fname)
 		ret = TXT;
 	else if (strstr(vids, tmp))
 		ret = VID;
- 	else if (strstr(muss, tmp))
+	else if (strstr(muss, tmp))
 		ret = MUS;
 	else
 		ret = DIRY;
 
 	return ret;
+}
+
+void run(char *name, file_type type)
+{
+	if (type == TXT)
+		execl("/usr/bin/gedit", name, NULL);
+	else if (type == VID)
+		execl("/usr/bin/totem", name, NULL);
 }

@@ -47,5 +47,6 @@ void print_dir(struct file_manager *mngr);
 int mngr_loop(struct file_manager *mngr);
 int cols_to_print(int ents);
 file_type get_type(char *fname);
+void run(char *name, file_type type);
 
 #endif
