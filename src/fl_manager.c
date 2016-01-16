@@ -193,3 +193,24 @@ int cols_to_print(int ents)
 	//ret = 0;
 	return ret;
 }
+
+file_type get_type(char *fname)
+{
+	file_type ret = TXT;
+	const char *txts = ".txt.c.cpp.h.php.py";
+	const char *vids = ".mp4.webm.avi.mkv";
+	const char *muss = ".mp3";
+
+	char *tmp = fname + (strlen(fname) - 3);
+
+	if (strstr(txts, tmp))
+		ret = TXT;
+	else if (strstr(vids, tmp))
+		ret = VID;
+ 	else if (strstr(muss, tmp))
+		ret = MUS;
+	else
+		ret = DIRY;
+
+	return ret;
+}

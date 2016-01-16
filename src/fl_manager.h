@@ -31,6 +31,13 @@ struct file_manager {
 	char *dir_entries[1024];
 };
 
+typedef enum {
+	TXT,
+	VID,
+	MUS,
+	DIRY
+} file_type;
+
 struct file_manager *init_manager(const char *path, int hidden);
 void free_manager(struct file_manager *mngr);
 int o_dir(struct file_manager *mngr);
@@ -39,5 +46,6 @@ void sort(struct file_manager *mngr);
 void print_dir(struct file_manager *mngr);
 int mngr_loop(struct file_manager *mngr);
 int cols_to_print(int ents);
+file_type get_type(char *fname);
 
 #endif
